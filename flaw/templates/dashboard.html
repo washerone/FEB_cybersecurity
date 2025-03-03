@@ -1,0 +1,135 @@
+<!-- home.html -->
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHOW PRODUCT</title>
+  <style>
+    /* home.css */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7f6;
+    }
+
+    .container {
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header h1 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 40px;
+      color: #333;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .product-card {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .product-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #333;
+    }
+
+    .product-description {
+      font-size: 14px;
+      color: #777;
+      margin: 10px 0;
+    }
+
+    .product-price {
+      font-size: 16px;
+      color: #e74c3c;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .product-card {
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Show Product</h1>
+    </header>
+    <div class="product-grid">
+
+      {% for product in products %}
+      <div class="product-card">
+        <!-- Flaw 4: Cross-Site Scripting (XSS) -->
+        <!-- https://docs.djangoproject.com/en/5.1/ref/templates/security/#xss  -->
+        <div class="product-grid">
+          {% for product in products %}
+          <div class="product-card">
+              <!-- XSS flaw: disabling automatic escaping -->
+              <h3 class="product-name">{{ product.name|safe }}</h3>
+              <p class="product-description">{{ product.description|safe }}</p >
+              <p class="product-price">{{ product.price }}</p >
+          </div>
+          {% endfor %}
+        </div>
+        <!-- Fix 4 below-->
+        <!-- <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-description">{{ product.description|escape }}</p> -->
+
+        <!-- Flaw 5: Sensitive Data Exposure -->
+        <!-- https://docs.djangoproject.com/en/5.1/topics/auth/default/#checking-permissions -->
+        <p class="product-price">€{{ product.price }}</p>
+        <!-- Fix 5 below-->
+        <!--{% if user.has_perm('view_price', product) %} 
+              <p class="product-price">€{{ product.price }}</p>
+            {% else %} -->
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</body>
+
+</html>
