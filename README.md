@@ -4,6 +4,8 @@ https://github.com/washerone/FEB_cybersecurity/tree/main
 This task is updated based on teacher’s advices in 12.2024, also adding the readme file since the essay can not be modified anymore.
 As suggested, for flaw 2 the wrong code is commented out, the fixed code is running to ensure the program functions correctly.
 
+Updated again in 04.2025, modifying flaw 3 CSRF
+
 FLAW 1: 
 Sensitive Data Exposure
 https://github.com/washerone/FEB_cybersecurity/blob/main/flaw/myapp/views.py#L37
@@ -18,7 +20,7 @@ We can handle login failures with a unified error message to avoid leaking sensi
 
 FLAW 2: 
 Injection
-https://github.com/washerone/FEB_cybersecurity/blob/main/flaw/myapp/views.py#L17
+https://github.com/washerone/FEB_cybersecurity/blob/main/flaw/myapp/views.py#L20
 
 Description: This login form on the page directly passes user input to the database for querying. If not enough preventive mechanisms are adopted, the attackers can insert unsafe SQL code into the username and password parts to skip authentication or execute any SQL queries they want. This will lead to data being exposed or modified. This issue usually is caused by not using processed statements or ORM (Object-Relational Mapping) queries in Django.
 
@@ -31,12 +33,12 @@ FLAW 3:
 CSRF
 https://github.com/washerone/FEB_cybersecurity/blob/main/flaw/templates/login.html#L92
 
-Flaw 3 description: If the form modifies user data such as login or updating information, it should include the {% csrf_token %} tag to prevent CSRF attacks. However, in this code the {% csrf_token %} tag has been commented out, so the form submission does not automatically include CSRF token.
+Flaw 3 description: If the form modifies user data such as login or updating information, it should include the {% csrf_token %} tag to prevent CSRF attacks. However, in this code the {% csrf_token %} tag has been commented out, so the form submission does not automatically include CSRF token. Moreover, the backend view function is marked with @csrf_exempt, which disables CSRF protection.
 
 This could lead to a CSRF attack, attackers can forge requests and tricks users into performing unintended actions, such as modifying user profiles or submitting forms.
 
 Fix:
-We should ensure that every form that submits user data includes the {% csrf_token %} tag. To fix the issue, add {% csrf_token %} into the form so that Django can generates and includes a CSRF token.
+We should ensure that every form that submits user data includes the {% csrf_token %} tag. To fix the issue, add {% csrf_token %} into the form so that Django can generates and includes a CSRF token. And in views.py, we should remove the @csrf_exempt from the login() function.
 
 
 FLAW 4:
