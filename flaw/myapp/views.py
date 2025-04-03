@@ -6,9 +6,12 @@ from django.contrib.auth import authenticate, login as django_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import check_password
+from django.views.decorators.csrf import csrf_exempt # for demonstrating flaw 3 CSRF
 from .models import Product
 
-
+#Flaw 3: CSRF
+@csrf_exempt
+# Fix 3: remove line 13 @csrf_exempt
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -21,9 +24,7 @@ def login(request):
 
         #FLAW2 original CODE:
             # user = User.objects.raw("SELECT * FROM auth_user WHERE username = '{}'".format(username))[0]
-        
         # Here, user input is directly placed into the SQL query, which opens up the possibility of SQL injection.
-
             
         #FLAW2: FIXED CODE:
             #This flaw is fixed by using Django ORM, which prevents SQL injection.
@@ -31,9 +32,8 @@ def login(request):
             if check_password(password, user.password): 
                 django_login(request, user)
                 return redirect('dashboard')
-            
             else:
-              
+                
         #Flaw 1 Sensitive Data Exposure
             # https://docs.djangoproject.com/en/5.1/topics/auth/default/#using-the-views
             # Returning specific error messages like "Incorrect password"
